@@ -15,12 +15,4 @@ This C# console application provides a simple menu-driven interface to perform v
 
 ## Requirements
 
-- Windows operating system.
-- .NET Core SDK or .NET Framework (depending on your environment).
-- Internet connection for downloading files.
-
-## How to Run
-
-1. Clone the repository to your local machine:
-   ```bash
-   git clone https://github.com/Cekkiq/c.git
+- windows (nothing else dont work)
