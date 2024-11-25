@@ -4,6 +4,7 @@ using System.Net;
 
 class Program
 {
+    private const string Version = "1.2.0";
     static void Main(string[] args)
     {
     string[] options = { "Wi-Fi Password", "c.bat (download & run)", "cp.exe (download & run)", "netcut.exe (download & run)", "Exit" };
