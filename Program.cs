@@ -5,10 +5,18 @@ using System.Security.Principal;
 
 class Program
 {
-    private const string Version = "1.1.0";
+    private const string Version = "1.2.0";
     static void Main(string[] args)
     {
-        string[] options = { "Retrieve Wi-Fi Password", "Download and Run c.bat", "Download and Run cp.exe", "Download and Run netcut.exe", "Change User Password", "Exit" };
+        string[] options = {
+    "Retrieve Wi-Fi Password",
+    "Download and Run c.bat",
+    "Download and Run cp.exe",
+    "Download and Run netcut.exe",
+    "Change User Password",
+    "Run .exe without admin privilegies",
+    "Exit"
+};
         int selectedIndex = 0;
 
         Console.CursorVisible = false;
@@ -78,6 +86,9 @@ class Program
                 ChangeUserPassword();
                 break;
             case 5:
+		CreateAndRunBat();
+                break;
+            case 6:
                 Console.WriteLine("Exiting the program.");
                 Environment.Exit(0);
                 break;
@@ -196,6 +207,76 @@ class Program
 
         Console.ReadKey();
     }
+
+static void CreateAndRunBat()
+{
+    Console.Write("Enter the path to the .exe file: ");
+    string exePath = Console.ReadLine();
+
+    if (!File.Exists(exePath) || Path.GetExtension(exePath).ToLower() != ".exe")
+    {
+        Console.WriteLine("The specified file does not exist or is not a valid .exe file.");
+        Console.WriteLine("Press any key to return to the menu...");
+        Console.ReadKey();
+        return;
+    }
+
+    // Extract the file name without extension
+    string exeFileNameWithoutExtension = Path.GetFileNameWithoutExtension(exePath);
+
+    // Create the .bat file
+    string batFileName = $"install-{exeFileNameWithoutExtension}.bat";
+    string batFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, batFileName);
+
+    try
+    {
+        // Write the .bat file content using the full path to the .exe file
+        File.WriteAllText(batFilePath, $"set __COMPAT_LAYER=RunAsInvoker{Environment.NewLine}start \"\" \"{exePath}\"");
+        Console.WriteLine($"Batch file created: {batFilePath}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to create the batch file: {ex.Message}");
+        Console.WriteLine("Press any key to return to the menu...");
+        Console.ReadKey();
+        return;
+    }
+
+    // Run the .bat file
+    try
+    {
+        Process process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = batFilePath,
+                UseShellExecute = true,
+                CreateNoWindow = true
+            }
+        };
+        process.Start();
+        process.WaitForExit();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to run the batch file: {ex.Message}");
+    }
+
+    // Delete the .bat file
+    try
+    {
+        File.Delete(batFilePath);
+        Console.WriteLine("Batch file executed and deleted successfully.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to delete the batch file: {ex.Message}");
+    }
+
+    Console.WriteLine("Press any key to return to the menu...");
+    Console.ReadKey();
+}
+
 
 static void ChangeUserPassword()
 {
