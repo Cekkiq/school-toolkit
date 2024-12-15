@@ -119,3 +119,28 @@ class Sachovnice:
                 if not self.je_prazdne(radek, sloupec_start):
                     return False
         return True
+
+
+def spustit_hru():
+    hra = Sachovnice()
+    hra.vykreslit()
+
+    while True:
+        print(f"Hraje {hra.hrac_na_tahu}.")
+        start = input("Zadejte počáteční pozici (např. e2): ")
+        konec = input("Zadejte cílovou pozici (např. e4): ")
+
+        if hra.je_legalni_tah(start, konec):
+            radek_start, sloupec_start = hra.pozice_na_index(start)
+            radek_konec, sloupec_konec = hra.pozice_na_index(konec)
+
+            hra.sachovnice[radek_konec][sloupec_konec] = hra.sachovnice[radek_start][sloupec_start]
+            hra.sachovnice[radek_start][sloupec_start] = "⬜" if (radek_start + sloupec_start) % 2 == 0 else "⬛"
+
+            hra.hrac_na_tahu = "cerne" if hra.hrac_na_tahu == "bile" else "bile"
+            hra.vykreslit()
+        else:
+            print("Tah není platný, zkuste to znovu.")
+
+
+spustit_hru()
