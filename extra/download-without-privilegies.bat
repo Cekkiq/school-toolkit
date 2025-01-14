@@ -1,21 +1,21 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set targetFile=target.bat
-
 if "%1"=="" (
-    set param=default.bat
-) else (
-    set param=%*
+    echo Nebyl zadaný parametr. Použijte například: c.bat -f neco.bat
+    exit /b
 )
 
-(
-    for /f "tokens=*" %%a in ('findstr /v /b "set __COMPAT_LAYER" "%targetFile%"') do (
-        @echo %%a
+if "%1"=="-f" (
+    if "%2"=="" (
+        echo Nebyl zadaný soubor pro -f.
+        exit /b
     )
-) > temp.bat
-
-echo set __COMPAT_LAYER=RunAsInvoker >> temp.bat
-echo start "%param%" >> neakysouborbezmezer.exe
-
-move /y temp.bat %targetFile% >nul
+    set param=%2
+    set __COMPAT_LAYER=RunAsInvoker
+    start "" "%param%"
+) else (
+    echo Neplatný parametr: %1
+    echo Použijte například: c.bat -f neco.bat
+    exit /b
+)
